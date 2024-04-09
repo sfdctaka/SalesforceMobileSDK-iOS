@@ -55,7 +55,15 @@
 
 - (UIWindow *)window {
     if (_window == nil) {
-        _window = [[SFSDKUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds andName:_windowName];
+        
+        
+#if TARGET_OS_VISION
+    _window = [[SFSDKUIWindow alloc] initWithFrame:CGRectMake(0, 0, 700, 700) andName:_windowName];
+#else
+    _window = [[SFSDKUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds andName:_windowName];
+#endif
+        
+        
         _window.windowLevel = self.windowLevel;
         if (!self.viewController ) {
             self.viewController = [[SFSDKRootController alloc] init];

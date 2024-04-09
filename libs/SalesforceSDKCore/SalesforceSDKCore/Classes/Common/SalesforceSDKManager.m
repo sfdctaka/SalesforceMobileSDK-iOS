@@ -103,7 +103,8 @@ SFNativeLoginManagerInternal *nativeLogin;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.frame = [UIScreen mainScreen].bounds;
+    //self.view.frame = [UIScreen mainScreen].bounds;
+    self.view.frame = CGRectMake(0, 0, 700, 700);
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.view.backgroundColor = [UIColor salesforceSystemBackgroundColor];
 }

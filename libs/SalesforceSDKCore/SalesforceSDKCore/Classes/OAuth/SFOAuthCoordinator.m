@@ -316,7 +316,9 @@
         WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
         config.processPool = SFSDKWebViewStateManager.sharedProcessPool;
         UIWindowScene *scene = (UIWindowScene *)self.authSession.oauthRequest.scene;
-        CGRect viewBounds = scene? scene.coordinateSpace.bounds : [UIScreen mainScreen].bounds;
+        CGRect viewBounds = scene? scene.coordinateSpace.bounds : CGRectMake(0, 0, 700, 700);
+        //[UIScreen mainScreen].bounds;
+        
         _view = [[WKWebView alloc] initWithFrame:viewBounds configuration:config];
         _view.navigationDelegate = self;
         _view.autoresizesSubviews = YES;

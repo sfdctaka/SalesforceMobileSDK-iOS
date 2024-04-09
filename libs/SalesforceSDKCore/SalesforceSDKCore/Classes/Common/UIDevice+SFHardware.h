@@ -209,10 +209,13 @@ typedef NS_ENUM(NSUInteger, UIDeviceFamily) {
 /**Device Family*/
 - (UIDeviceFamily)sfsdk_deviceFamily;
 
+#ifndef TARGET_OS_VISION
 /**Device's current orientation
  This method will first try to retrieve orientation using UIDevice currentOrientation, if return value is an invalid orientation, it will try to use the orientation of the first window scene
  */
 - (UIInterfaceOrientation)sfsdk_interfaceOrientation;
+
+#endif
 
 /**
  *  Determine if current device is simulator or not
