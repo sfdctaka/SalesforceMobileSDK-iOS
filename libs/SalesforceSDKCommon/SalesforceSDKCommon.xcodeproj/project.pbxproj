@@ -601,6 +601,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				XROS_DEPLOYMENT_TARGET = 1.1;
 			};
 			name = Debug;
 		};
@@ -661,6 +662,7 @@
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				XROS_DEPLOYMENT_TARGET = 1.1;
 			};
 			name = Release;
 		};

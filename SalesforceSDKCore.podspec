@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/forcedotcom/SalesforceMobileSDK-iOS.git",
                      :tag => "v#{s.version}" }
 
-  s.frameworks   = 'CoreTelephony'
+  # s.frameworks   = 'CoreTelephony'
 
   s.requires_arc = true
   s.default_subspec  = 'SalesforceSDKCore'

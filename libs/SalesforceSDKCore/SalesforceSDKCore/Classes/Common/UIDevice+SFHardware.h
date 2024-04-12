@@ -78,6 +78,8 @@
 #define SIMULATOR_IPAD_NAMESTRING       @"iPad Simulator"
 #define SIMULATOR_APPLETV_NAMESTRING    @"Apple TV Simulator"
 
+#define SIMULATOR_VISIONPRO_NAMESTRING    @"Vision Pro Simulator"
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, UIDevicePlatform) {
@@ -89,6 +91,7 @@ typedef NS_ENUM(NSUInteger, UIDevicePlatform) {
     UIDeviceSimulatoriPhone6Plus,
     UIDeviceSimulatoriPad,
     UIDeviceSimulatorAppleTV,
+    UIDeviceSimulatorVisionPro,
     
     UIDevice1GiPhone,
     UIDevice3GiPhone,
@@ -147,6 +150,8 @@ typedef NS_ENUM(NSUInteger, UIDevicePlatform) {
     UIDeviceAppleTV4,
     UIDeviceAppleTV4k,
     
+    UIDeviceVisionPro,
+    
     UIDeviceUnknowniPhone,
     UIDeviceUnknowniPod,
     UIDeviceUnknowniPad,
@@ -159,6 +164,7 @@ typedef NS_ENUM(NSUInteger, UIDeviceFamily) {
     UIDeviceFamilyiPod,
     UIDeviceFamilyiPad,
     UIDeviceFamilyAppleTV,
+    UIDeviceFamilyVisionPro,
     UIDeviceFamilyUnknown
 };
 

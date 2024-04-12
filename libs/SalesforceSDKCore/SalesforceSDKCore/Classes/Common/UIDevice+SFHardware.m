@@ -302,7 +302,8 @@
 //        return smallerScreen ? UIDeviceSimulatoriPhone : UIDeviceSimulatoriPad;
 //    }
     
-    return UIDeviceUnknown;
+    //return UIDeviceUnknown;
+    return UIDeviceVisionPro;
 }
 
 - (BOOL)sfsdk_hasNeuralEngine {
@@ -418,6 +419,8 @@
         case UIDeviceSimulatoriPhone: return SIMULATOR_IPHONE_NAMESTRING;
         case UIDeviceSimulatoriPad: return SIMULATOR_IPAD_NAMESTRING;
         case UIDeviceSimulatorAppleTV: return SIMULATOR_APPLETV_NAMESTRING;
+        case UIDeviceSimulatorVisionPro: return
+            SIMULATOR_VISIONPRO_NAMESTRING;
             
         case UIDeviceIFPGA: return IFPGA_NAMESTRING;
             
@@ -431,6 +434,8 @@
     if ([platform hasPrefix:@"iPod"]) return UIDeviceFamilyiPod;
     if ([platform hasPrefix:@"iPad"]) return UIDeviceFamilyiPad;
     if ([platform hasPrefix:@"AppleTV"]) return UIDeviceFamilyAppleTV;
+    if ([platform hasPrefix:@"Vision Pro"]) return
+        UIDeviceFamilyVisionPro;
     
     return UIDeviceFamilyUnknown;
 }

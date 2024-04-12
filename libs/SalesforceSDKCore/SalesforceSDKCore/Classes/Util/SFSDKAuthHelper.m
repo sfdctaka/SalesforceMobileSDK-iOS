@@ -41,7 +41,12 @@
 
 + (void)loginIfRequired:(void (^)(void))completionBlock {
     UIScene *scene = [[SFSDKWindowManager sharedManager] defaultScene];
-    [SFSDKAuthHelper loginIfRequired:scene completion:completionBlock];
+    [SFSDKAuthHelper loginIfRequired:scene completion:^{
+        
+        [[[SFSDKWindowManager sharedManager] mainWindow:scene].window.rootViewController dismissViewControllerAnimated:YES completion:NULL];
+        
+        completionBlock();
+    }];
 }
 
 + (void)loginIfRequired:(UIScene *)scene completion:(void (^)(void))completionBlock {

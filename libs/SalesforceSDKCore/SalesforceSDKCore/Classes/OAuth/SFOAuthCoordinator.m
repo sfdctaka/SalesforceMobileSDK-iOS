@@ -325,6 +325,9 @@
         _view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         _view.clipsToBounds = YES;
         _view.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        _view.backgroundColor = UIColor.redColor;
+        
         _view.customUserAgent = [SalesforceSDKManager sharedManager].userAgentString(@"");
         if (@available(iOS 16.4, *)) {
             _view.inspectable = [SalesforceSDKManager sharedManager].isLoginWebviewInspectable;

@@ -690,7 +690,28 @@ static NSString * const kSFGenericFailureAuthErrorHandler = @"GenericFailureErro
 
     SFSDKWindowContainer *authWindow = [[SFSDKWindowManager sharedManager] authWindow:scene];
     if (![[SFSDKWindowManager sharedManager] authWindow:scene].isEnabled) {
-        if (completionBlock) completionBlock();
+        if (completionBlock) {
+            completionBlock();
+            
+            //takashi
+            UIViewController *presentedViewController = authWindow.viewController.presentedViewController;
+            if (presentedViewController && presentedViewController.isBeingPresented) {
+                [presentedViewController dismissViewControllerAnimated:NO completion:^{
+                    [[[SFSDKWindowManager sharedManager] authWindow:scene] dismissWindowAnimated:NO withCompletion:^{
+                        if (completionBlock) {
+                            completionBlock();
+                        }
+                    }];
+                }];
+            } else {
+                [[[SFSDKWindowManager sharedManager] authWindow:scene] dismissWindowAnimated:NO withCompletion:^{
+                    if (completionBlock) {
+                        completionBlock();
+                    }
+                }];
+            }
+            //takashi
+        }
         return;
     }
 
@@ -1770,6 +1791,28 @@ static NSString * const kSFGenericFailureAuthErrorHandler = @"GenericFailureErro
                 [[SFScreenLockManagerInternal shared] storeMobilePolicyWithUserAccount:self.currentUser hasMobilePolicy:hasMobilePolicy lockTimeout:lockTimeout];
             }
         }
+        
+        //takashi
+//        SFSDKWindowContainer *authWindow = [[SFSDKWindowManager sharedManager] authWindow:scene];
+//        UIViewController *presentedViewController = authWindow.viewController.presentedViewController;
+//        if (presentedViewController && presentedViewController.isBeingPresented) {
+//            [presentedViewController dismissViewControllerAnimated:NO completion:^{
+//                [[[SFSDKWindowManager sharedManager] authWindow:scene] dismissWindowAnimated:NO withCompletion:^{
+//                    if (completionBlock) {
+//                        completionBlock();
+//                    }
+//                }];
+//            }];
+//        } else {
+//            [[[SFSDKWindowManager sharedManager] authWindow:scene] dismissWindowAnimated:NO withCompletion:^{
+//                if (completionBlock) {
+//                    completionBlock();
+//                }
+//            }];
+//        }
+        
+        
+        
     }];
     [self dismissAuthViewControllerIfPresent];
 }
