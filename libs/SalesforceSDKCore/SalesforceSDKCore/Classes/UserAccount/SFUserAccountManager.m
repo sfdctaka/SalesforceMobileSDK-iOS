@@ -2288,6 +2288,44 @@ static NSString * const kSFGenericFailureAuthErrorHandler = @"GenericFailureErro
 }
 
 - (void)presentLoginView:(SFSDKAuthViewHolder *)viewHandler {
+    // ----- SwiftUI host bypass (opt-in, default off) -----
+    // If a SwiftUI host has set `usesSwiftUIAuthPresentation = YES` and provided a
+    // `swiftUIAuthPresentationHandler`, build the same login view controller the default
+    // path would build, then hand it to the host instead of going through SFSDKWindowManager.
+    //
+    // Why: the default path below uses SFSDKWindowManager to create a dedicated UIWindow for
+    // the auth view. That UIWindow-based modal presentation hits a SwiftUI runtime assertion
+    // on visionOS (UIPresentationController.runTransitionForCurrentStateAnimated:), and is
+    // also awkward in pure-SwiftUI iOS apps that have no AppDelegate/SceneDelegate. The
+    // bypass mirrors the established `snapshotViewPresentationHandler` pattern: host opts in,
+    // SDK calls back instead of using its own window. Advanced-auth flow (ASWebAuthenticationSession)
+    // is left on the default path because it uses system-level web auth that's already
+    // SwiftUI-compatible via its own presentationContextProvider.
+    SalesforceSDKManager *sdkManager = [SalesforceSDKManager sharedManager];
+    if (sdkManager.usesSwiftUIAuthPresentation && !viewHandler.isAdvancedAuthFlow) {
+        if (sdkManager.swiftUIAuthPresentationHandler != nil) {
+            UIViewController *controllerToPresent = nil;
+            if (self.nativeLoginEnabled && !self.shouldFallbackToWebAuthentication) {
+                UIViewController *multiWindowNativeLoginVC = [sdkManager.nativeLoginViewControllers objectForKey:viewHandler.scene.session.persistentIdentifier];
+                UIViewController *nativeLogin = multiWindowNativeLoginVC ? multiWindowNativeLoginVC : [sdkManager.nativeLoginViewControllers objectForKey:kSFDefaultNativeLoginViewControllerKey];
+                controllerToPresent = [[SFSDKNavigationController alloc] initWithRootViewController:nativeLogin];
+            } else {
+                controllerToPresent = [[SFSDKNavigationController alloc] initWithRootViewController:viewHandler.loginController];
+            }
+            // The host typically presents this in a SwiftUI sheet/full-screen-cover, which
+            // controls modalPresentationStyle itself; we don't force fullScreen here because
+            // the host may want a different presentation (e.g., a popover on iPad).
+            dispatch_async(dispatch_get_main_queue(), ^{
+                sdkManager.swiftUIAuthPresentationHandler(controllerToPresent);
+            });
+            return;
+        } else {
+            // Misconfiguration: flag is on but no handler provided. Log and fall through to
+            // the default UIWindow path so the user still gets an auth UI rather than nothing.
+            [SFSDKCoreLogger w:[self class] format:@"usesSwiftUIAuthPresentation is YES but swiftUIAuthPresentationHandler is nil; falling back to SFSDKWindowManager."];
+        }
+    }
+    // ----- Default path (unchanged from prior SDK versions) -----
     void (^presentViewBlock)(void) = ^void() {
         if (self.nativeLoginEnabled && !self.shouldFallbackToWebAuthentication) {
             UIViewController *multiWindowNativeLoginVC = [[SalesforceSDKManager sharedManager].nativeLoginViewControllers objectForKey:viewHandler.scene.session.persistentIdentifier];
@@ -2313,7 +2351,7 @@ static NSString * const kSFGenericFailureAuthErrorHandler = @"GenericFailureErro
             [viewHandler.session start];
         }
     };
-  
+
     void (^presentWindowBlock)(void) = ^void() {
         [[[SFSDKWindowManager sharedManager] authWindow:viewHandler.scene] presentWindow];
         //dismiss if already presented and then present

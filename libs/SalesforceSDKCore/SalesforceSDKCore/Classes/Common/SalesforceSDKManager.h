@@ -64,6 +64,28 @@ typedef void (^SFSnapshotViewControllerPresentationBlock)(UIViewController* snap
  */
 typedef void (^SFSnapshotViewControllerDismissalBlock)(UIViewController* snapshotViewController) NS_SWIFT_NAME(SalesforceManager.SnapshotViewDismissBlock) API_UNAVAILABLE(visionos);
 
+/**
+ Block typedef for presenting the OAuth/login view controller in a SwiftUI-hosted app.
+
+ The block receives the fully-configured login view controller (web view, native login, or
+ advanced auth root controller, depending on flags) that the SDK would otherwise hand to
+ `SFSDKWindowManager`. The host app is responsible for presenting the controller in a way
+ compatible with its SwiftUI scene topology — typically by wrapping it in a
+ `UIViewControllerRepresentable` and presenting it as a `.sheet { }` or `.fullScreenCover { }`
+ attached to a SwiftUI view.
+
+ @discussion
+ This block is only invoked when ``SalesforceSDKManager/usesSwiftUIAuthPresentation`` is `YES`.
+ If the block is `nil` (or the flag is `NO`), the SDK uses the default `SFSDKWindowManager`
+ path, which creates a UIWindow for the auth view. The default path remains the only path on
+ iOS and is unchanged from prior SDK versions.
+
+ The host should retain a reference to the presented controller until the auth flow finishes
+ (notified via `kSFNotificationUserDidLogIn` or `kSFNotificationUserDidLogout`) and then
+ dismiss it.
+ */
+typedef void (^SFSwiftUIAuthPresentationBlock)(UIViewController *loginViewController) NS_SWIFT_NAME(SalesforceManager.SwiftUIAuthPresentationBlock);
+
 NS_SWIFT_NAME(DevAction)
 @interface SFSDKDevAction : NSObject
 
@@ -195,6 +217,51 @@ NS_SWIFT_NAME(SalesforceManager)
  This block is only invoked if the presentation action is also set.
  */
 @property (nonatomic, copy, nullable) SFSnapshotViewControllerDismissalBlock snapshotDismissalAction NS_SWIFT_NAME(snapshotViewDismissalHandler) API_UNAVAILABLE(visionos);
+
+/**
+ Whether host apps want to present the OAuth/login view controller themselves through a
+ SwiftUI-friendly path instead of the default `SFSDKWindowManager` UIWindow path. Default is
+ `NO`.
+
+ @discussion
+ When `NO` (default), the SDK creates a dedicated `UIWindow` via ``SFSDKWindowManager`` and
+ presents the login view controller from it. This is the long-standing behavior and remains
+ the only behavior unless a host explicitly opts in.
+
+ When `YES`, the SDK skips the UIWindow path and instead invokes
+ ``swiftUIAuthPresentationHandler``, handing the configured login view controller to the host.
+ The host then presents the controller in whatever way fits its scene topology (typically a
+ SwiftUI sheet or full-screen cover wrapping the VC in a `UIViewControllerRepresentable`).
+
+ **Why this exists.** The default UIWindow-based presentation path is unsupported on visionOS
+ (multi-scene UIWindow construction triggers a SwiftUI assertion failure during modal
+ presentation transitions) and is awkward in pure-SwiftUI iOS apps that have no AppDelegate
+ or SceneDelegate. This flag lets a host opt into a presentation strategy that is composable
+ with SwiftUI's scene model. The pattern follows the precedent set by
+ ``snapshotViewPresentationHandler``/``snapshotViewDismissalHandler`` for the snapshot view.
+
+ **Backward compatibility.** Apps that don't set this flag are completely unaffected. The
+ default UIWindow path's code is preserved unchanged behind a guard.
+ */
+@property (nonatomic, assign) BOOL usesSwiftUIAuthPresentation NS_SWIFT_NAME(usesSwiftUIAuthPresentation);
+
+/**
+ The block to execute to present the OAuth/login view controller when
+ ``usesSwiftUIAuthPresentation`` is `YES`.
+
+ @discussion
+ The block receives a fully-configured login view controller (the same one the SDK would
+ otherwise present via ``SFSDKWindowManager``) and is responsible for getting it on screen.
+ The block is invoked on the main queue.
+
+ If `usesSwiftUIAuthPresentation` is `YES` but this block is `nil`, the SDK falls back to the
+ default UIWindow path and logs a warning, so a misconfigured host degrades gracefully rather
+ than failing silently.
+
+ The host should retain a reference to the presented controller and dismiss it when the auth
+ flow finishes (observable via `kSFNotificationUserDidLogIn`).
+ */
+@property (nonatomic, copy, nullable) SFSwiftUIAuthPresentationBlock swiftUIAuthPresentationHandler NS_SWIFT_NAME(swiftUIAuthPresentationHandler);
 
 /**
  Gets or sets a block that will return a user agent string, created with an optional qualifier.
